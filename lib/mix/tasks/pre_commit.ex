@@ -15,25 +15,9 @@ defmodule Mix.Tasks.PreCommit do
 
   def run(_) do
     IO.puts("\e[95mPre-commit running...\e[0m")
-    {_, 0} = System.cmd("git", String.split("stash push --keep-index --message pre_commit", " "))
-
+   
     @commands
     |> Enum.each(&run_cmds/1)
-
-    System.cmd("git", String.split("stash pop", " "), stderr_to_stdout: true)
-    |> case do
-      {_, 0} ->
-        "\e[32mPre-commit passed!\e[0m"
-
-      {"No stash entries found.", 1} ->
-        "\e[32mPre-commit passed!\e[0m"
-
-      {error, _} ->
-        error
-    end
-    |> IO.puts()
-
-    System.halt(0)
   end
 
   defp run_cmds(cmd) do
@@ -54,8 +38,6 @@ defmodule Mix.Tasks.PreCommit do
         IO.puts(
           "\e[31mPre-commit failed on `mix #{cmd}`.\e[0m \nCommit again with --no-verify to live dangerously and skip pre-commit."
         )
-
-        {_, 0} = System.cmd("git", String.split("stash pop", " "))
         System.halt(1)
     end
   end
