@@ -18,7 +18,24 @@ defmodule Mix.Tasks.PreCommit do
    
     @commands
     |> Enum.each(&run_cmds/1)
+  
+    System.cmd("git", String.split("stash pop", " "), stderr_to_stdout: true)
+    |> case do
+      {_, 0} ->
+        "\e[32mPre-commit passed!\e[0m"
+
+      {"No stash entries found.", 1} ->
+        "\e[32mPre-commit passed!\e[0m"
+
+      {error, _} ->
+        error
+    end
+    |> IO.puts()
+
+    System.halt(0)
+  
   end
+  
 
   defp run_cmds(cmd) do
     into =
